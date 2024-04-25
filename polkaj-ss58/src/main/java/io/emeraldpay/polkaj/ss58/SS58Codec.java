@@ -6,6 +6,7 @@ import org.bouncycastle.jcajce.provider.digest.Blake2b;
 /**
  * Encode values with SS58 encoding (checksummed Base58)
  */
+@Deprecated
 public class SS58Codec {
 
     private static final SS58Codec DEFAULT = new SS58Codec();
@@ -65,7 +66,7 @@ public class SS58Codec {
         if (value == null) {
             throw new IllegalArgumentException("Input value is null");
         }
-        if (value.length() == 0) {
+        if (value.isEmpty()) {
             throw new IllegalArgumentException("Input value is too short");
         }
 

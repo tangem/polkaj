@@ -1,8 +1,8 @@
 package io.emeraldpay.polkaj.types;
 
+import io.emeraldpay.polkaj.ss58.SS58Encoder;
 import io.emeraldpay.polkaj.ss58.SS58Type;
 import io.emeraldpay.polkaj.ss58.SS58;
-import io.emeraldpay.polkaj.ss58.SS58Codec;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -42,7 +42,7 @@ public class Address implements Comparable<Address> {
     }
 
     public static Address from(String address) {
-        SS58 decoded = SS58Codec.getInstance().decode(address);
+        SS58 decoded = SS58Encoder.decode(address);
         SS58Type.Network type = SS58Type.Network.from(decoded.getType().getValue());
         return new Address(type, decoded.getValue());
     }
@@ -59,7 +59,7 @@ public class Address implements Comparable<Address> {
         if (encoded != null) {
             return encoded;
         }
-        String encoded = SS58Codec.getInstance().encode(network, pubkey);
+        String encoded = SS58Encoder.encode(network, pubkey);
         this.encoded = encoded;
         return encoded;
     }

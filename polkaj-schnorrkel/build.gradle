@@ -1,8 +1,5 @@
 apply from: '../common_java_app.gradle'
 
-dependencies {
-}
-
 test {
     systemProperty "java.library.path", file("${buildDir}/rust/release").absolutePath
 }
