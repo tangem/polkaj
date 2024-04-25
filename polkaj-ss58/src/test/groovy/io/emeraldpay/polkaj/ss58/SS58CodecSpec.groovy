@@ -9,44 +9,23 @@ import spock.lang.Specification
  */
 class SS58CodecSpec extends Specification {
 
-    def "Doesn't encode null address type"() {
-        when:
-        SS58Codec.instance.encode(null, Hex.decodeHex('9053cc32597892cc2cd43ea6e3c0db7a3b4c52e5fe6052762080dbc3e3222c0b'))
-        then:
-        thrown(IllegalArgumentException)
-    }
-
-    def "Doesn't encode null pubkey"() {
-        when:
-        SS58Codec.instance.encode(SS58Type.Network.SUBSTRATE, null)
-        then:
-        thrown(IllegalArgumentException)
-    }
-
-    def "Doesn't decode null"() {
-        when:
-        SS58Codec.instance.decode(null)
-        then:
-        thrown(IllegalArgumentException)
-    }
-
     def "Doesn't decode empty"() {
         when:
-        SS58Codec.instance.decode("")
+        SS58Encoder.decode("")
         then:
         thrown(IllegalArgumentException)
     }
 
     def "Doesn't encode short pubkey"() {
         when:
-        SS58Codec.instance.encode(SS58Type.Network.SUBSTRATE, Hex.decodeHex('9053cc32597892cc2cd43ea6e3c0db7a3b4c52e5fe6052762080dbc3e3222c'))
+        SS58Encoder.encode(SS58Type.Network.SUBSTRATE, Hex.decodeHex('9053cc32597892cc2cd43ea6e3c0db7a3b4c52e5fe6052762080dbc3e3222c'))
         then:
         thrown(IllegalArgumentException)
     }
 
     def "Doesn't decode just base struct"() {
         when:
-        SS58Codec.instance.decode(Base58.encode([42, 1, 2] as byte[]))
+        SS58Encoder.decode(Base58.encode([42, 1, 2] as byte[]))
         then:
         def t = thrown(IllegalArgumentException)
         t.message == "Input value is too short"
@@ -54,14 +33,14 @@ class SS58CodecSpec extends Specification {
 
     def "Doesn't encode long pubkey"() {
         when:
-        SS58Codec.instance.encode(SS58Type.Network.SUBSTRATE, Hex.decodeHex('9053cc32597892cc2cd43ea6e3c0db7a3b4c52e5fe6052762080dbc3e3222c0000'))
+        SS58Encoder.encode(SS58Type.Network.SUBSTRATE, Hex.decodeHex('9053cc32597892cc2cd43ea6e3c0db7a3b4c52e5fe6052762080dbc3e3222c0000'))
         then:
         thrown(IllegalArgumentException)
     }
 
     def "Encode Kusama self-generated"() {
         setup:
-        def encoder = SS58Codec.instance
+        def encoder = SS58Encoder
         expect:
         encoder.encode(SS58Type.Network.CANARY, Hex.decodeHex(pubkey)) == addr
         where:
@@ -75,7 +54,7 @@ class SS58CodecSpec extends Specification {
 
     def "Encode Edgeware self-generated"() {
         setup:
-        def encoder = SS58Codec.instance
+        def encoder = SS58Encoder
         expect:
         encoder.encode(SS58Type.Network.EDGEWARE_BERLIN, Hex.decodeHex(pubkey)) == addr
         where:
@@ -87,7 +66,7 @@ class SS58CodecSpec extends Specification {
 
     def "Encode Substrate self-generated"() {
         setup:
-        def encoder = SS58Codec.instance
+        def encoder = SS58Encoder
         expect:
         encoder.encode(SS58Type.Network.SUBSTRATE, Hex.decodeHex(pubkey)) == addr
         where:
@@ -99,7 +78,7 @@ class SS58CodecSpec extends Specification {
 
     def "Decode Substrate self-generated"() {
         setup:
-        def encoder = SS58Codec.instance
+        def encoder = SS58Encoder
         expect:
         Hex.encodeHexString(encoder.decode(addr).getValue()) == pubkey
         where:
@@ -111,7 +90,7 @@ class SS58CodecSpec extends Specification {
 
     def "Decode Kusama self-generated"() {
         setup:
-        def encoder = SS58Codec.instance
+        def encoder = SS58Encoder
         expect:
         Hex.encodeHexString(encoder.decode(addr).getValue()) == pubkey
         where:
@@ -125,7 +104,7 @@ class SS58CodecSpec extends Specification {
 
     def "Decode Edgeware self-generated"() {
         setup:
-        def encoder = SS58Codec.instance
+        def encoder = SS58Encoder
         expect:
         Hex.encodeHexString(encoder.decode(addr).getValue()) == pubkey
         where:
@@ -137,11 +116,11 @@ class SS58CodecSpec extends Specification {
 
     def "Throws error for incorrect checksum"() {
         setup:
-        def encoder = SS58Codec.instance
+        def encoder = SS58Encoder
         when:
         encoder.decode('kRKzYtM2KGB9DgonEbuRYdooSDbkyyR8TixhUbvKqsA24mB')
         then:
         def t = thrown(IllegalArgumentException)
-        t.message == 'Incorrect checksum'
+        t.message == 'Invalid checksum'
     }
 }

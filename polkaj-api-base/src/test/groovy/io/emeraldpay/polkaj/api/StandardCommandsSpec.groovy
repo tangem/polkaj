@@ -376,7 +376,7 @@ class StandardCommandsSpec extends Specification {
 
     def "Account Next Index"() {
         when:
-        def act = StandardCommands.getInstance().accountNextIndex(Address.from("5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"))
+        def act = StandardCommands.getInstance().accountNextIndex(Address.from("j4W8cZkDFVJ1W4kMbrC59ZRQuvLwaE1MKqaxNfWPATKGUniWS"))
         then:
         act.method == "account_nextIndex"
         act.params.toList() == [

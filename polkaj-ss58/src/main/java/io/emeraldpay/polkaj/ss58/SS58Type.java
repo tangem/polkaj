@@ -5,17 +5,18 @@ package io.emeraldpay.polkaj.ss58;
  */
 public abstract class SS58Type {
 
-    private byte value;
+    private final byte value;
 
     private SS58Type(byte value) {
         this.value = value;
     }
+
     private SS58Type(int value) {
-        //values starting from 64 are reserved by the spec at this moment
-        if (value < 0 || value >= 64) {
+        //values starting from 127 are reserved by the spec at this moment
+        if (value < 0 || value >= 127) {
             throw new IllegalArgumentException("Unsupported value: " + value);
         }
-        this.value = (byte)value;
+        this.value = (byte) value;
     }
 
     public byte getValue() {
@@ -34,27 +35,30 @@ public abstract class SS58Type {
         public static Network DOTHEREUM = new Network(0b00010100);
         public static Network SUBSTRATE = new Network(0b00101010);
         public static Network SUBSTRATE_SECONDARY = new Network(0b00101011);
-
-        private static Network[] ALL = {
-                LIVE, LIVE_SECONDARY,
-                CANARY, CANARY_SECONDARY,
-                EDGEWARE_BERLIN,
-                KULUPU, KULUPU_SECONDARY,
-                DOTHEREUM,
-                SUBSTRATE, SUBSTRATE_SECONDARY
-        };
+        public static Network JOYSTREAM = new Network(0b01111110);
+        public static Network POLKADOT;
+        public static Network WESTEND;
+        public static Network KUSAMA;
+        private static final Network[] ALL;
 
         private Network(int value) {
             super(value);
         }
 
         public static Network from(byte value) {
-            for (Network n: ALL) {
+            for (Network n : ALL) {
                 if (n.getValue() == value) {
                     return n;
                 }
             }
             throw new IllegalArgumentException("Unsupported network: " + value);
+        }
+
+        static {
+            POLKADOT = LIVE;
+            WESTEND = SUBSTRATE;
+            KUSAMA = CANARY;
+            ALL = new Network[]{LIVE, LIVE_SECONDARY, CANARY, CANARY_SECONDARY, EDGEWARE_BERLIN, KULUPU, KULUPU_SECONDARY, DOTHEREUM, SUBSTRATE, SUBSTRATE_SECONDARY, JOYSTREAM};
         }
     }
 
