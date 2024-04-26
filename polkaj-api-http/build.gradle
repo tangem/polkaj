@@ -1,8 +1,7 @@
 apply from: '../common_java_app.gradle'
 
-compileJava {
-    targetCompatibility = '11'
-    sourceCompatibility = '11'
+java {
+    withSourcesJar()
 }
 
 dependencies {

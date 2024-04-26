@@ -54,21 +54,12 @@ task syncJars(type: Sync) {
     into "${buildDir}/libs/"
 }
 
-// Skip Bintray for the root module
-bintray {
-    dryRun=true
-    publish=false
-    override=true
-    publications = []
-    configurations = []
-    pkg {
-        repo = 'none'
-        name = 'none'
-        version {
-            name = 'none'
-        }
+jar {
+    from {
+        subprojects.collect { it.sourceSets.main.output }
     }
 }
+
 repositories {
     mavenCentral()
 }
@@ -77,11 +68,11 @@ dependencies {
 }
 compileKotlin {
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 }
 compileTestKotlin {
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 }

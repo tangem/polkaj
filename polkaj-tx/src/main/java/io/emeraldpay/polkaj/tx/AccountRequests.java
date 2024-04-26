@@ -275,6 +275,18 @@ public class AccountRequests {
         }
 
         /**
+         * Get signature payload for sign by external signer
+         *
+         * @param context signing context
+         * @return signature payload
+         * @throws SignException if failed to encode call
+         */
+        public byte[] getPayloadForSign(ExtrinsicContext context) throws SignException {
+            ExtrinsicSigner<BalanceTransfer> signer = new ExtrinsicSigner<>(new BalanceTransferWriter());
+            return signer.getPayload(context, this.call);
+        }
+
+        /**
          *
          * @return signed Transfer
          */

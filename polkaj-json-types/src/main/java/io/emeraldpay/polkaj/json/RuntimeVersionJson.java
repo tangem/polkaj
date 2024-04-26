@@ -12,6 +12,7 @@ public class RuntimeVersionJson {
     private String specName;
     private Integer specVersion;
     private Integer transactionVersion;
+    private Integer stateVersion;
 
     public List<List<?>> getApis() {
         return apis;
@@ -67,6 +68,14 @@ public class RuntimeVersionJson {
 
     public void setTransactionVersion(Integer transactionVersion) {
         this.transactionVersion = transactionVersion;
+    }
+
+    public Integer getStateVersion() {
+        return stateVersion;
+    }
+
+    public void setStateVersion(Integer stateVersion) {
+        this.stateVersion = stateVersion;
     }
 
     @Override
