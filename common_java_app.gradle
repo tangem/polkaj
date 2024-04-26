@@ -19,8 +19,8 @@ tasks.withType(JavaCompile) {
 }
 
 compileJava {
-    targetCompatibility = '8'
-    sourceCompatibility = '8'
+    targetCompatibility = '11'
+    sourceCompatibility = '11'
 }
 
 
@@ -56,12 +56,12 @@ repositories {
 }
 compileKotlin {
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 }
 compileTestKotlin {
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 }
 

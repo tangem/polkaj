@@ -10,7 +10,7 @@ public class RuntimeDispatchInfoJson {
     @JsonProperty("class")
     private DispatchClass dispatchClass;
     private DotAmount partialFee;
-    private Long weight;
+    private Weight weight;
 
     public DispatchClass getDispatchClass() {
         return dispatchClass;
@@ -28,11 +28,11 @@ public class RuntimeDispatchInfoJson {
         this.partialFee = partialFee;
     }
 
-    public Long getWeight() {
+    public Weight getWeight() {
         return weight;
     }
 
-    public void setWeight(Long weight) {
+    public void setWeight(Weight weight) {
         this.weight = weight;
     }
 
@@ -58,5 +58,23 @@ public class RuntimeDispatchInfoJson {
         OPERATIONAL,
         @JsonProperty("mandatory")
         MANDATORY
+    }
+
+    public static class Weight {
+        @JsonProperty("ref_time")
+        Long refTime;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Weight weight = (Weight) o;
+            return Objects.equals(refTime, weight.refTime);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(refTime);
+        }
     }
 }

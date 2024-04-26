@@ -9,7 +9,7 @@ public enum CompactMode {
     FOUR((byte)0b10),
     BIGINT((byte)0b11);
 
-    private static BigInteger MAX = BigInteger.TWO.pow(536).subtract(BigInteger.ONE);
+    private static BigInteger MAX = BigInteger.valueOf(2).pow(536).subtract(BigInteger.ONE);
 
     private byte value;
 

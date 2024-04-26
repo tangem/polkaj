@@ -1,5 +1,9 @@
 apply from: '../common_java_app.gradle'
 
+java {
+    withSourcesJar()
+}
+
 dependencies {
     api project(":polkaj-common-types")
 }

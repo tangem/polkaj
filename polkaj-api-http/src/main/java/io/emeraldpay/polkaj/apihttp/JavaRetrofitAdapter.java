@@ -3,10 +3,15 @@ package io.emeraldpay.polkaj.apihttp;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+
 import io.emeraldpay.polkaj.api.RpcCall;
 import io.emeraldpay.polkaj.api.RpcCallAdapter;
 import io.emeraldpay.polkaj.api.RpcCoder;
 import io.emeraldpay.polkaj.api.RpcException;
+import io.emeraldpay.polkaj.apihttp.ext.CompletableFutureKt;
 import io.emeraldpay.polkaj.json.jackson.PolkadotModule;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -16,19 +21,29 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-
 public class JavaRetrofitAdapter implements RpcCallAdapter {
+
     private final PolkadotRetrofitApi service;
     private final RpcCoder rpcCoder;
+
     private Runnable onCloseListener;
     private boolean isClosed = false;
 
-    public JavaRetrofitAdapter(String baseUrl, OkHttpClient okHttpClient, RpcCoder rpcCoder) {
-        ObjectMapper mapper = (new ObjectMapper()).registerModule(new PolkadotModule());
+    public JavaRetrofitAdapter(
+            String baseUrl,
+            OkHttpClient okHttpClient,
+            RpcCoder rpcCoder
+    ) {
+        ObjectMapper mapper = new ObjectMapper().registerModule(new PolkadotModule());
         JacksonConverterFactory converterFactory = JacksonConverterFactory.create(mapper);
-        this.service = (new Retrofit.Builder()).baseUrl(baseUrl).addConverterFactory(converterFactory).client(okHttpClient).build().create(PolkadotRetrofitApi.class);
+
+        this.service = new Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(converterFactory)
+                .client(okHttpClient)
+                .build()
+                .create(PolkadotRetrofitApi.class);
+
         this.rpcCoder = rpcCoder;
     }
 
@@ -36,49 +51,48 @@ public class JavaRetrofitAdapter implements RpcCallAdapter {
         this.onCloseListener = onCloseListener;
     }
 
+    @Override
     public <T> CompletableFuture<T> produceRpcFuture(RpcCall<T> call) {
-        if (this.isClosed) {
-            return CompletableFuture.failedFuture(new IllegalStateException("Client is already closed"));
-        } else {
-            int id = this.rpcCoder.nextId();
-            JavaType type = call.getResultType(this.rpcCoder.getObjectMapper().getTypeFactory());
+        if (isClosed) {
+            return CompletableFutureKt.failedFuture(new IllegalStateException("Client is already closed"));
+        }
 
-            RpcException exception;
-            try {
-                MediaType mediaType = MediaType.get("application/json; charset=utf-8");
-                byte[] encodedRpcRequest = this.rpcCoder.encode(id, call);
-                RequestBody requestBody = RequestBody.create(mediaType, encodedRpcRequest);
-                Response<ResponseBody> response = this.service.post(requestBody).execute();
-                if (response.code() != 200) {
-                    exception = new RpcException(-32000, "Server returned error status: " + response.code());
-                    return CompletableFuture.failedFuture(exception);
-                } else if (response.body() == null) {
-                    exception = new RpcException(-32000, "Server returned empty body");
-                    return CompletableFuture.failedFuture(exception);
-                } else {
-                    String jsonBody = response.body().string();
-                    T result = this.rpcCoder.decode(id, jsonBody, type);
-                    return CompletableFuture.completedFuture(result);
-                }
-            } catch (JsonProcessingException var10) {
-                exception = new RpcException(-32600, "Unable to encode request as JSON: " + var10.getMessage(), var10);
-                return CompletableFuture.failedFuture(exception);
-            } catch (CompletionException var11) {
-                exception = new RpcException(-32600, "Unable to decode response from JSON: " + var11.getMessage(), var11);
-                return CompletableFuture.failedFuture(exception);
-            } catch (Exception var12) {
-                return CompletableFuture.failedFuture(var12);
+        int id = rpcCoder.nextId();
+        JavaType type = call.getResultType(rpcCoder.getObjectMapper().getTypeFactory());
+
+        try {
+            MediaType mediaType = MediaType.get("application/json; charset=utf-8");
+            byte[] encodedRpcRequest = rpcCoder.encode(id, call);
+            RequestBody requestBody = RequestBody.create(mediaType, encodedRpcRequest);
+            Response<ResponseBody> response = service.post(requestBody).execute();
+            if (response.code() != 200) {
+                RpcException exception = new RpcException(-32000, "Server returned error status: " + response.code());
+                return CompletableFutureKt.failedFuture(exception);
             }
+            if (response.body() == null) {
+                RpcException exception = new RpcException(-32000, "Server returned empty body");
+                return CompletableFutureKt.failedFuture(exception);
+            }
+
+            String jsonBody = response.body().string();
+            Object result = rpcCoder.decode(id, jsonBody, type);
+            return CompletableFuture.completedFuture(((T) result));
+        } catch (JsonProcessingException e) {
+            RpcException exception = new RpcException(-32600, "Unable to encode request as JSON: " + e.getMessage(), e);
+            return CompletableFutureKt.failedFuture(exception);
+        } catch (CompletionException ex) {
+            RpcException exception = new RpcException(-32600, "Unable to decode response from JSON: " + ex.getMessage(), ex);
+            return CompletableFutureKt.failedFuture(exception);
+        } catch (Exception e) {
+            return CompletableFutureKt.failedFuture(e);
         }
     }
 
+    @Override
     public void close() throws Exception {
-        if (!this.isClosed) {
-            this.isClosed = true;
-            if (this.onCloseListener != null) {
-                this.onCloseListener.run();
-            }
+        if (isClosed) return;
 
-        }
+        isClosed = true;
+        if (onCloseListener != null) onCloseListener.run();
     }
 }
