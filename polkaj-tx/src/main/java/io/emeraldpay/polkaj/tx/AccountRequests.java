@@ -85,9 +85,21 @@ public class AccountRequests {
     public static class AddressBalance extends StorageRequest<AccountInfo> {
 
         private final Address address;
+        private final SS58Type.Network network;
 
+        /**
+         * Do not use this constructor. In Tangem we provide [network] from outside to support our
+         * custom networks.
+         */
+        @Deprecated
         public AddressBalance(Address address) {
             this.address = address;
+            this.network = address.getNetwork();
+        }
+
+        public AddressBalance(Address address, SS58Type.Network network) {
+            this.address = address;
+            this.network = network;
         }
 
         @Override
@@ -108,7 +120,7 @@ public class AccountRequests {
             if (result == null) {
                 return null;
             }
-            return new ScaleCodecReader(result.getBytes()).read(new AccountInfoReader(address.getNetwork()));
+            return new ScaleCodecReader(result.getBytes()).read(new AccountInfoReader(network));
         }
     }
 
