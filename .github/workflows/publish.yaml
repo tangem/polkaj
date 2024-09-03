@@ -58,7 +58,7 @@ jobs:
         with:
           java-version: 11
       - name: Download native lib
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
         with:
           name: schnorrkel-lib
           path: polkaj-schnorrkel/build/rust/release
@@ -99,7 +99,7 @@ jobs:
         with:
           java-version: 11
       - name: Download native lib
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
         with:
           name: schnorrkel-lib
           path: polkaj-schnorrkel/build/rust/release
