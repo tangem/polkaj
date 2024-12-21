@@ -16,6 +16,8 @@ import java.util.Objects;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
+
 /**
  * WebSocket based client to Polkadot API. In addition to standard RPC calls it supports subscription to events, i.e.
  * when a call provides multiple responses.
@@ -365,6 +367,7 @@ public class JavaHttpSubscriptionAdapter implements SubscriptionAdapter, RpcCall
         private void initDefaults() {
             if (rpcCoder == null) {
                 final ObjectMapper objectMapper = new ObjectMapper();
+                objectMapper.disable(FAIL_ON_UNKNOWN_PROPERTIES);
                 objectMapper.registerModule(new PolkadotModule());
                 rpcCoder = new RpcCoder(objectMapper);
             }

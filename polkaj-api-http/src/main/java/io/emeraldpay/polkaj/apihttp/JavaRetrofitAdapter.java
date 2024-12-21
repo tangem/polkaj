@@ -21,6 +21,8 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
+import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
+
 public class JavaRetrofitAdapter implements RpcCallAdapter {
 
     private final PolkadotRetrofitApi service;
@@ -35,6 +37,7 @@ public class JavaRetrofitAdapter implements RpcCallAdapter {
             RpcCoder rpcCoder
     ) {
         ObjectMapper mapper = new ObjectMapper().registerModule(new PolkadotModule());
+        mapper.disable(FAIL_ON_UNKNOWN_PROPERTIES);
         JacksonConverterFactory converterFactory = JacksonConverterFactory.create(mapper);
 
         this.service = new Retrofit.Builder()

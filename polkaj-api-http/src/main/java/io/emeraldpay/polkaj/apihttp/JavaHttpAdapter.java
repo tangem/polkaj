@@ -18,6 +18,8 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
+
 /**
  * Default JSON RPC HTTP client for Polkadot API. It uses Java 11 HttpClient implementation for requests.
  * Each request made from that client has a uniq id, from a monotone sequence starting on 0. A new instance is
@@ -256,6 +258,7 @@ public class JavaHttpAdapter implements RpcCallAdapter {
         private void initDefaults() {
             if (rpcCoder == null) {
                 final ObjectMapper objectMapper = new ObjectMapper();
+                objectMapper.disable(FAIL_ON_UNKNOWN_PROPERTIES);
                 objectMapper.registerModule(new PolkadotModule());
                 rpcCoder = new RpcCoder(objectMapper);
             }

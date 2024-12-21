@@ -3,6 +3,7 @@ package io.emeraldpay.polkaj.tx;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.emeraldpay.polkaj.api.PolkadotApi;
 import io.emeraldpay.polkaj.api.StandardCommands;
 import io.emeraldpay.polkaj.json.RuntimeVersionJson;
@@ -14,6 +15,7 @@ import io.emeraldpay.polkaj.types.Hash256;
 /**
  * Context to execute an Extrinsic
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ExtrinsicContext {
 
     /**

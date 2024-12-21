@@ -1,8 +1,11 @@
 package io.emeraldpay.polkaj.json;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 import java.util.Objects;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RuntimeVersionJson {
 
     private List<List<?>> apis;
